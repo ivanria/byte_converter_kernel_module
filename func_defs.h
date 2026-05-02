@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-3.0 */
 #ifndef FUNC_DEFS_H__
 #define FUNC_DEFS_H__
 

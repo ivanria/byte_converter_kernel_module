@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0
 #include <linux/proc_fs.h>
 #include <linux/bitmap-str.h>
 
@@ -8,7 +9,7 @@ u16 conversion_mask;
 static ssize_t mask_read(struct file *file,
 		char __user *ubuf,
 		size_t count,
-		loff_t *ppos) 
+		loff_t *ppos)
 {
 	char buf[256];
 	size_t len = 2;
@@ -26,10 +27,11 @@ static ssize_t mask_read(struct file *file,
 static ssize_t mask_write(struct file *file,
 		const char __user *ubuf,
 		size_t count,
-		loff_t *ppos) 
+		loff_t *ppos)
 {
 	ssize_t err = 0;
 	char buf[8];
+
 	if (count > sizeof(buf) - 1) {
 		err = -EINVAL;
 		goto ERR;

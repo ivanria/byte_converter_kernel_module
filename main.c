@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0
 #include <linux/module.h>
 #include <linux/fs.h>      // File operations
 #include <linux/uaccess.h> // copy_to/from_user
@@ -19,20 +20,20 @@ extern const struct proc_ops mask_ops;
 extern u16 conversion_mask;
 
 static int major;
-static struct class *byte_conv_class = NULL;
+static struct class *byte_conv_class;
 static struct cdev byte_conv_cdev;
-static struct device *byte_conv_device = NULL;
-static dev_t dev_num = 0;
+static struct device *byte_conv_device;
+static dev_t dev_num;
 
 struct proc_dir_entry *entry;
 
 
 static const struct file_operations fops = {
-    .owner   = THIS_MODULE,
-    .read    = dev_read,
-    .write   = dev_write,
-    .open    = dev_open,
-    // .release = dev_release,
+	.owner   = THIS_MODULE,
+	.read    = dev_read,
+	.write   = dev_write,
+	.open    = dev_open,
+	// .release = dev_release,
 };
 
 static int __init converter_init(void)
@@ -90,25 +91,26 @@ static void __exit converter_exit(void)
 }
 
 // write callback (echo "..." > /dev/byte_converter)
-static ssize_t dev_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos) {
+static ssize_t dev_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+{
 	// Тут выделяем память (или используем готовую)
 	// Используем copy_from_user(kernel_buffer, buf, count);
-    return count;
+	return count;
 }
 
 // read callback (cat /dev/byte_converter)
 static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
-    // Тут смотрим маску из /proc
-    // Форматируем данные в строку
-    // Используем copy_to_user(buf, formatted_string, len);
-    return count; // Сколько байт реально отдали пользователю
+	// Тут смотрим маску из /proc
+	// Форматируем данные в строку
+	// Используем copy_to_user(buf, formatted_string, len);
+	return count; // Сколько байт реально отдали пользователю
 }
 
 // open/close callback
 static int dev_open(struct inode *inode, struct file *file)
 {
-    return 0;
+	return 0;
 }
 
 //static char *print_buf_as_bits(char *represent_buf, const size_t size)
