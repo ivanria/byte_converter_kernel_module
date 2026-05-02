@@ -1,4 +1,5 @@
 #include <linux/proc_fs.h>
+#include <linux/bitmap-str.h>
 
 #include "bit_macros.h"
 
@@ -9,12 +10,15 @@ static ssize_t mask_read(struct file *file,
 		size_t count,
 		loff_t *ppos) 
 {
-	char buf[4096];
-	size_t len = 0;
+	char buf[256];
+	size_t len = 2;
 
-	len += scnprintf(buf + len, sizeof(buf) - len, "Current mask is:\n%s",
-			print_buf_as_bits(&conversion_mask,
-				sizeof(conversion_mask)));
+	len = scnprintf(buf, 256, "Current mask is: %*pb\n", 11,
+			&conversion_mask);
+
+	//len += scnprintf(buf + len, sizeof(buf) - len, "Current mask is:\n%s",
+			//print_buf_as_bits(&conversion_mask,
+				//sizeof(conversion_mask)));
 
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
 }

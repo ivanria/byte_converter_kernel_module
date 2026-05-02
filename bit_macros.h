@@ -1,5 +1,5 @@
-#ifndef BIT_MACROS_H__
-#define BIT_MACROS_H__
+#ifndef MACROS_H__
+#define MACROS_H__
 
 
 // Check bit on n position. Double negation transform any not null value to 1
@@ -21,5 +21,15 @@
 #define IS_SET_OUTPUT_DEC(m)	CHECK_BIT(m, 1)
 #define IS_SET_OUTPUT_HEX(m)	CHECK_BIT(m, 0)
 
+// Definitions for buffers size
+#define MAIN_UBUF_SIZE 4096
+#define TOTAL_LINES (MAIN_UBUF_SIZE / 4) // 4 bytes per line
+#define CHAR_PER_LINE (((4 + (4 * 3)) + 1) + 32) // (1 space btw nibbles * 4) +
+						 // (4 spaces btw bytes * 3) +
+						 // (8 bits per byte * 4) +
+						 // 1 new_line
+#define UBUF_REPRESENT_SIZE (CHAR_PER_LINE * TOTAL_LINES)
+// the broadest representation BITS representation
 
-#endif // BIT_MACROS_H__
+
+#endif // MACROS_H__
