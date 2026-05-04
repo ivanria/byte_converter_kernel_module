@@ -7,7 +7,6 @@
 #include <linux/cdev.h>
 
 #include "bit_macros.h"
-//#include "func_defs.h"
 #include "main.h"
 #include "externs.h"
 
@@ -51,7 +50,7 @@ static struct class *byte_conv_class;
 static struct cdev byte_conv_cdev;
 static struct device *byte_conv_device;
 static dev_t dev_num;
-struct proc_dir_entry *entry;
+static struct proc_dir_entry *entry;
 
 static struct file_operations fops = {
 	.owner   = THIS_MODULE,

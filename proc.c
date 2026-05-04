@@ -7,20 +7,42 @@
 #include "main.h"
 #include "externs.h"
 
+static const char * const input_mods_strings[] = {
+	"Input mode is: HEX",
+	"Input mode is: DEC",
+	"Input mode is: OCTAL",
+	"Input mode is: BIN",
+	"Input mode is: RAW (Default)",
+};
+
 static ssize_t mask_read(struct file *file,
 		char __user *ubuf,
 		size_t count,
 		loff_t *ppos)
 {
 	char buf[256];
-	size_t len = 2;
+	size_t len;
 
-	len = scnprintf(buf, 256, "Current mask is: %*pb\n", 11,
+	if (byte_conv_mask >= 2048) {
+		goto ERR;
+	}
+
+	if (!is_power_of_2(byte_conv_mask >> 6)) {
+		goto ERR;
+	}
+
+	len = scnprintf(buf, sizeof(buf), "Current mask is: %16pb\n\n",
 			&byte_conv_mask);
 
-	//len += scnprintf(buf + len, sizeof(buf) - len, "Current mask is:\n%s",
-			//print_buf_as_bits(&byte_conv_mask,
-				//sizeof(byte_conv_mask)));
+	len += scnprintf(buf + len, sizeof(buf) - len, "%s\n",
+			input_mods_strings[ffs(byte_conv_mask >> 6) - 1]);
+
+
+	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
+ERR:
+	len = scnprintf(buf, sizeof(buf), "Current mask is: %pbl\n\n",
+			&byte_conv_mask);
+	len += scnprintf(buf + len, sizeof(buf) - len, "Invalid mask\n");
 
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
 }
@@ -59,8 +81,7 @@ static ssize_t mask_write(struct file *file,
 		goto ERR;
 	}
 
-	if (((byte_conv_mask >> 6) == 0) ||
-			(is_power_of_2(byte_conv_mask >> 6))) {
+	if (!is_power_of_2(byte_conv_mask >> 6)) {
 		err = -EINVAL;
 		goto ERR;
 	}
