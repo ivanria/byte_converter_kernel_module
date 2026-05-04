@@ -1,6 +1,6 @@
+/* SPDX-License-Identifier: GPL-3.0 */
 #ifndef MAIN_H__
 #define MAIN_H__
-
 
 // Definitions for buffers size
 #define MAIN_UBUF_SIZE 4096
@@ -25,8 +25,5 @@
 					__func__, __LINE__, ##__VA_ARGS__); \
 		} \
 	} while (0)
-
-
-
 
 #endif // MAIN_H__

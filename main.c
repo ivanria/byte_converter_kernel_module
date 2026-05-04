@@ -37,13 +37,12 @@ static int dev_open(struct inode *inode, struct file *file)
 	return 0;
 }
 
-
 // Global visible variables
 char *byte_conv_dev_fname = "byte_converter";
 char *byte_conv_proc_fname = "byte_conv_mask";
 u16 byte_conv_mask;
-/*******************************************/
 
+/*******************************************/
 
 // Static visible variables
 static struct class *byte_conv_class;
@@ -52,20 +51,19 @@ static struct device *byte_conv_device;
 static dev_t dev_num;
 static struct proc_dir_entry *entry;
 
-static struct file_operations fops = {
+static const struct file_operations fops = {
 	.owner   = THIS_MODULE,
 	.read    = dev_read,
 	.write   = dev_write,
 	.open    = dev_open,
 	// .release = dev_release,
 };
-/*******************************************/
 
+/*******************************************/
 
 static int __init converter_init(void)
 {
 	int ret;
-
 
 	pr_info("Char Device Converter module is loaded\n");
 
@@ -100,8 +98,8 @@ static int __init converter_init(void)
 		return PTR_ERR(byte_conv_device);
 	}
 
-	entry = proc_create(byte_conv_proc_fname, 0666, NULL,
-			&byte_conv_mask_ops);
+	entry = proc_create
+		(byte_conv_proc_fname, 0666, NULL, &byte_conv_mask_ops);
 	if (!entry) {
 		pr_warn("Can't create /proc/%s file\n", byte_conv_proc_fname);
 		return -ENOMEM;

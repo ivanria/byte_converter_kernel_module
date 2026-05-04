@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-3.0 */
 #ifndef EXTERNS_H__
 #define EXTERNS_H__
 

@@ -3,7 +3,6 @@
 #include <linux/bitmap-str.h>
 
 #include "bit_macros.h"
-//#include "func_defs.h"
 #include "main.h"
 #include "externs.h"
 
@@ -23,20 +22,17 @@ static ssize_t mask_read(struct file *file,
 	char buf[256];
 	size_t len;
 
-	if (byte_conv_mask >= 2048) {
+	if (byte_conv_mask >= 2048)
 		goto ERR;
-	}
 
-	if (!is_power_of_2(byte_conv_mask >> 6)) {
+	if (!is_power_of_2(byte_conv_mask >> 6))
 		goto ERR;
-	}
 
 	len = scnprintf(buf, sizeof(buf), "Current mask is: %16pb\n\n",
 			&byte_conv_mask);
 
 	len += scnprintf(buf + len, sizeof(buf) - len, "%s\n",
 			input_mods_strings[ffs(byte_conv_mask >> 6) - 1]);
-
 
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
 ERR:
@@ -63,7 +59,6 @@ static ssize_t mask_write(struct file *file,
 	}
 
 	if (copy_from_user(buf, ubuf, count)) {
-
 		err = -EFAULT;
 		goto ERR_FAULT;
 	}
@@ -88,10 +83,10 @@ static ssize_t mask_write(struct file *file,
 
 	return count;
 ERR:
-	pr_warn("Ivalid bit mask in %s\n", byte_conv_proc_fname);
+	pr_warn("Invalid bit mask in %s\n", byte_conv_proc_fname);
 	return err;
 ERR_FAULT:
-	pr_warn("Cant read user buffer\n");
+	pr_warn("Can't read user buffer\n");
 	return err;
 }
 
