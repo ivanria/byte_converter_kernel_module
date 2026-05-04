@@ -3,8 +3,9 @@
 #include <linux/bitmap-str.h>
 
 #include "bit_macros.h"
-
-u16 conversion_mask;
+//#include "func_defs.h"
+#include "main.h"
+#include "externs.h"
 
 static ssize_t mask_read(struct file *file,
 		char __user *ubuf,
@@ -15,11 +16,11 @@ static ssize_t mask_read(struct file *file,
 	size_t len = 2;
 
 	len = scnprintf(buf, 256, "Current mask is: %*pb\n", 11,
-			&conversion_mask);
+			&byte_conv_mask);
 
 	//len += scnprintf(buf + len, sizeof(buf) - len, "Current mask is:\n%s",
-			//print_buf_as_bits(&conversion_mask,
-				//sizeof(conversion_mask)));
+			//print_buf_as_bits(&byte_conv_mask,
+				//sizeof(byte_conv_mask)));
 
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
 }
@@ -33,10 +34,14 @@ static ssize_t mask_write(struct file *file,
 	char buf[8];
 
 	if (count > sizeof(buf) - 1) {
+		BC_PR_DEBUG("User try to write to %s %zu bytes\n",
+				byte_conv_proc_fname, count);
 		err = -EINVAL;
 		goto ERR;
 	}
+
 	if (copy_from_user(buf, ubuf, count)) {
+
 		err = -EFAULT;
 		goto ERR_FAULT;
 	}
@@ -44,31 +49,32 @@ static ssize_t mask_write(struct file *file,
 	buf[count] = '\0';
 
 	// kstrtou8 convert string to digit
-	if (kstrtou16(buf, 0, &conversion_mask)) {
+	if (kstrtou16(buf, 0, &byte_conv_mask)) {
 		err = -EINVAL;
 		goto ERR;
 	}
 
-	if (conversion_mask >= 2048) {
+	if (byte_conv_mask >= 2048) {
 		err = -EINVAL;
 		goto ERR;
 	}
 
-	if (hweight16(conversion_mask >> 6) > 1) {
+	if (((byte_conv_mask >> 6) == 0) ||
+			(is_power_of_2(byte_conv_mask >> 6))) {
 		err = -EINVAL;
 		goto ERR;
 	}
 
 	return count;
 ERR:
-	pr_warn("Ivalid bit mask in /proc/byte_conv_mask\n");
+	pr_warn("Ivalid bit mask in %s\n", byte_conv_proc_fname);
 	return err;
 ERR_FAULT:
 	pr_warn("Cant read user buffer\n");
 	return err;
 }
 
-const struct proc_ops mask_ops = {
+const struct proc_ops byte_conv_mask_ops = {
 	.proc_read  = mask_read,
 	.proc_write = mask_write,
 };
