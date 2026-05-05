@@ -48,6 +48,7 @@ static ssize_t mask_write(struct file *file,
 		size_t count,
 		loff_t *ppos)
 {
+	u16 tmp_mask;
 	ssize_t err = 0;
 	char buf[8];
 
@@ -65,22 +66,22 @@ static ssize_t mask_write(struct file *file,
 
 	buf[count] = '\0';
 
-	// kstrtou8 convert string to digit
-	if (kstrtou16(buf, 0, &byte_conv_mask)) {
+	if (kstrtou16(buf, 0, &tmp_mask)) {
 		err = -EINVAL;
 		goto ERR;
 	}
 
-	if (byte_conv_mask >= 2048) {
+	if (tmp_mask >= 2048) {
 		err = -EINVAL;
 		goto ERR;
 	}
 
-	if (!is_power_of_2(byte_conv_mask >> 6)) {
+	if (!is_power_of_2(tmp_mask >> 6)) {
 		err = -EINVAL;
 		goto ERR;
 	}
 
+	byte_conv_mask = tmp_mask;
 	return count;
 ERR:
 	pr_warn("Invalid bit mask in %s\n", byte_conv_proc_fname);
