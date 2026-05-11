@@ -1,5 +1,5 @@
 obj-m			:= byte_converter.o
-byte_converter-y	:= main.o proc.o
+byte_converter-y	:= main.o proc.o conv_helpers.o
 KERNEL_SRC		:= /lib/modules/$(shell uname -r)/build
 PWD			:= $(shell pwd)
 ccflags-y		:= -Wall -Wextra -Wmissing-prototypes \

@@ -14,13 +14,19 @@ static const char * const input_mods_strings[] = {
 	"Input mode is: RAW (Default)",
 };
 
+spinlock_t byte_conv_mask_lock;
+
 static ssize_t mask_read(struct file *file,
 		char __user *ubuf,
 		size_t count,
 		loff_t *ppos)
 {
 	char buf[256];
+	unsigned long flags;
 	size_t len;
+	unsigned int index;
+
+	spin_lock_irqsave(&byte_conv_mask_lock, flags);
 
 	if (byte_conv_mask >= 2048)
 		goto ERR;
@@ -28,18 +34,21 @@ static ssize_t mask_read(struct file *file,
 	if (!is_power_of_2(byte_conv_mask >> 6))
 		goto ERR;
 
-	len = scnprintf(buf, sizeof(buf), "Current mask is: %16pb\n\n",
+	len = scnprintf(buf, sizeof(buf), "Current mask is: %16pb\n",
 			&byte_conv_mask);
 
+	// Any power of two cannot be zero. [ffs(....) - 1] is safely
 	len += scnprintf(buf + len, sizeof(buf) - len, "%s\n",
-			input_mods_strings[ffs(byte_conv_mask >> 6) - 1]);
+			input_mods_strings[fss(byte_conv_mask >> 6) - 1]);
 
+	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
 ERR:
 	len = scnprintf(buf, sizeof(buf), "Current mask is: %pbl\n\n",
 			&byte_conv_mask);
 	len += scnprintf(buf + len, sizeof(buf) - len, "Invalid mask\n");
 
+	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
 }
 
@@ -49,6 +58,7 @@ static ssize_t mask_write(struct file *file,
 		loff_t *ppos)
 {
 	u16 tmp_mask;
+	unsigned long flags;
 	ssize_t err = 0;
 	char buf[8];
 
@@ -63,6 +73,8 @@ static ssize_t mask_write(struct file *file,
 		err = -EFAULT;
 		goto ERR_FAULT;
 	}
+
+	spin_lock_irqsave(&byte_conv_mask_lock, flags);
 
 	buf[count] = '\0';
 
@@ -82,12 +94,15 @@ static ssize_t mask_write(struct file *file,
 	}
 
 	byte_conv_mask = tmp_mask;
+	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return count;
 ERR:
 	pr_warn("Invalid bit mask in %s\n", byte_conv_proc_fname);
+	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return err;
 ERR_FAULT:
 	pr_warn("Can't read user buffer\n");
+	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return err;
 }
 
