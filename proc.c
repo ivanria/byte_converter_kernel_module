@@ -24,7 +24,6 @@ static ssize_t mask_read(struct file *file,
 	char buf[256];
 	unsigned long flags;
 	size_t len;
-	unsigned int index;
 
 	spin_lock_irqsave(&byte_conv_mask_lock, flags);
 
@@ -39,7 +38,7 @@ static ssize_t mask_read(struct file *file,
 
 	// Any power of two cannot be zero. [ffs(....) - 1] is safely
 	len += scnprintf(buf + len, sizeof(buf) - len, "%s\n",
-			input_mods_strings[fss(byte_conv_mask >> 6) - 1]);
+			input_mods_strings[ffs(byte_conv_mask >> 6) - 1]);
 
 	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
