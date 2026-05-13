@@ -25,7 +25,9 @@ static void print_conv_bin(char *outbuf, char *inbuf, size_t inbuf_size)
 			*p++ = ' '; *p++ = ' '; *p++ = ' '; *p++ = ' ';
 		}
 	}
-	*p = '\0';
+	if (i % 4 != 0)
+		*p = '\0';
+	else
+		*(p - 1) = '\0';
 }
-
 
