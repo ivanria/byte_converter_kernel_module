@@ -2,7 +2,7 @@ obj-m			:= byte_converter.o
 byte_converter-y	:= main.o proc.o conv_helpers.o
 KERNEL_SRC		:= /lib/modules/$(shell uname -r)/build
 PWD			:= $(shell pwd)
-ccflags-y		:= -Wall -Wextra -Wpedantic -Wmissing-prototypes \
+ccflags-y		:= -Wall -Wextra -Wmissing-prototypes \
 			-Wstrict-prototypes -DBYTE_CONV_DEBUG
 #ldflags-y		:= -T foo_section.lds
 
