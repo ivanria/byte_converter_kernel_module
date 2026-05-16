@@ -5,25 +5,26 @@
 #include "bit_macros.h"
 #include "main.h"
 #include "externs.h"
+#include "conv_helpers.h"
 
 static const char * const input_mods_strings[] = {
 	"Input mode is: HEX",
 	"Input mode is: DEC",
 	"Input mode is: OCTAL",
 	"Input mode is: BIN",
-	"Input mode is: RAW (Default)",
+	"Input mode is: RAW (Default)", // 29 bytes
 };
-
-spinlock_t byte_conv_mask_lock;
 
 static ssize_t mask_read(struct file *file,
 		char __user *ubuf,
 		size_t count,
 		loff_t *ppos)
 {
+	char mask_buf[sizeof(byte_conv_mask)];
+	char bit_str_mask[OUT_BUF_SIZE_BIN(sizeof(byte_conv_mask))];
 	char buf[256];
 	unsigned long flags;
-	size_t len;
+	size_t len = 0, bin_len;
 
 	spin_lock_irqsave(&byte_conv_mask_lock, flags);
 
@@ -33,8 +34,14 @@ static ssize_t mask_read(struct file *file,
 	if (!is_power_of_2(byte_conv_mask >> 6))
 		goto ERR;
 
-	len = scnprintf(buf, sizeof(buf), "Current mask is: %16pb\n",
-			&byte_conv_mask);
+	mask_buf[0] = (char)((byte_conv_mask >> 8) & 0x0f);
+	mask_buf[1] = (char)(byte_conv_mask & 0x0f);
+
+	bin_len = print_conv_bin(bit_str_mask, mask_buf,
+			sizeof(byte_conv_mask));
+	BC_PR_DEBUG("mask bits is: %s", bit_str_mask);
+	len += scnprintf(buf + len, sizeof(buf) - len, "Current mask is: ");
+	len += scnprintf(buf + len, bin_len, "%s", bit_str_mask);
 
 	// Any power of two cannot be zero. [ffs(....) - 1] is safely
 	len += scnprintf(buf + len, sizeof(buf) - len, "%s\n",
@@ -43,9 +50,13 @@ static ssize_t mask_read(struct file *file,
 	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
 ERR:
-	len = scnprintf(buf, sizeof(buf), "Current mask is: %pbl\n\n",
-			&byte_conv_mask);
-	len += scnprintf(buf + len, sizeof(buf) - len, "Invalid mask\n");
+	mask_buf[0] = (char)((byte_conv_mask >> 8) & 0x0f);
+	mask_buf[1] = (char)(byte_conv_mask & 0x0f);
+
+	bin_len = print_conv_bin(bit_str_mask, mask_buf,
+			sizeof(byte_conv_mask));
+	BC_PR_DEBUG("mask bits is: %s", bit_str_mask);
+	len = scnprintf(buf, sizeof(buf), "Mask invalid\n");
 
 	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 	return simple_read_from_buffer(ubuf, count, ppos, buf, len);

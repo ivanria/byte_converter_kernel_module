@@ -2,11 +2,20 @@
 #ifndef MAIN_H__
 #define MAIN_H__
 
+// Typedef for print_conv functions
+typedef size_t (*conv_func_t)(char *outbuf, char *inbuf, size_t inbuf_size);
+
 // Definitions for buffers size
+#define INPUT_USER_BUF_SIZE	4096
 #define OFFSET_STR_LEN		7
 #define OFFSET_STR_BUF		(OFFSET_STR_LEN + 1)
 #define OFFSET_STR_LEN_H	(OFFSET_STR_LEN + 2)
 #define OFFSET_STR_BUF_H	(OFFSET_STR_LEN_H + 1)
+
+// Raw representation calculate buffer size macros
+#define OUT_BUF_SIZE_RAW(bc) ((bc) + 2)
+// ASCII representation calculate buffer size macros
+#define OUT_BUF_SIZE_ASCII(bc) ((bc) + 2)
 
 // Bit representation calculate buffer size macros
 #define RESTB(x)		((x) % 4)
@@ -62,6 +71,12 @@
         (((bc) / 16) * (2 * 16 + 3 * 4 + 2 * 3 + OFFSET_STR_LEN_H + 1) + \
          REST_SIZE_HEX(bc) + 1)
 
+// struct definition
+struct byte_conv_user_data {
+	char user_data_buf[INPUT_USER_BUF_SIZE];
+	size_t user_data_size;
+};
+
 // Debug macros
 #ifdef BYTE_CONV_DEBUG
 	#define _BYTE_CONV_DEBUG_MODE 1
@@ -77,6 +92,7 @@
 		} \
 	} while (0)
 
+/*
 enum byte_conv_base {
 	CONV_HEX	= 0,
 	CONV_DEC	= 1,
@@ -84,5 +100,6 @@ enum byte_conv_base {
 	CONV_BIN	= 3,
 	CONV_RAW	= 4,
 };
+*/
 
 #endif // MAIN_H__

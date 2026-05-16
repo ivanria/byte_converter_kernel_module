@@ -1,9 +1,11 @@
 #include <linux/types.h>
 #include <linux/sprintf.h>
+#include <linux/string.h>
 
 #include "main.h"
+#include "conv_helpers.h"
 
-static size_t print_conv_bin(char *outbuf, char *inbuf, size_t inbuf_size)
+size_t print_conv_bin(char *outbuf, char *inbuf, size_t inbuf_size)
 {
 	uint8_t byte;
 	char *p = outbuf;
@@ -34,7 +36,7 @@ static size_t print_conv_bin(char *outbuf, char *inbuf, size_t inbuf_size)
 	return p - outbuf;
 }
 
-static size_t print_conv_octal(char *outbuf, char *inbuf, size_t inbuf_size)
+size_t print_conv_octal(char *outbuf, char *inbuf, size_t inbuf_size)
 {
 	uint8_t byte;
 	char *p = outbuf;
@@ -64,7 +66,7 @@ static size_t print_conv_octal(char *outbuf, char *inbuf, size_t inbuf_size)
 	return p - outbuf;
 }
 
-static size_t print_conv_dec(char *outbuf, char *inbuf, size_t inbuf_size)
+size_t print_conv_dec(char *outbuf, char *inbuf, size_t inbuf_size)
 {
 	uint8_t byte;
 	char *p = outbuf;
@@ -94,7 +96,7 @@ static size_t print_conv_dec(char *outbuf, char *inbuf, size_t inbuf_size)
 	return p - outbuf;
 }
 
-static size_t print_conv_hex(char *outbuf, char *inbuf, size_t inbuf_size)
+size_t print_conv_hex(char *outbuf, char *inbuf, size_t inbuf_size)
 {
 	uint8_t byte, nibble;
 	char *p = outbuf;
@@ -130,4 +132,17 @@ static size_t print_conv_hex(char *outbuf, char *inbuf, size_t inbuf_size)
 	return p - outbuf;
 }
 
+size_t print_conv_raw(char *outbuf, char *inbuf, size_t inbuf_size)
+{
+	memcpy(outbuf, inbuf, inbuf_size);
+	*(outbuf + inbuf_size) = '\n'; *(outbuf + inbuf_size + 1) = '\0';
+	return inbuf_size + 2;
+}
+
+size_t print_conv_ascii(char *outbuf, char *inbuf, size_t inbuf_size)
+{
+	memcpy(outbuf, inbuf, inbuf_size);
+	*(outbuf + inbuf_size) = '\n'; *(outbuf + inbuf_size + 1) = '\0';
+	return inbuf_size + 2;
+}
 
