@@ -18,7 +18,7 @@ MODULE_DESCRIPTION("Char Device Converter from/to ascii, bin, octal, hex");
 // Global visible variables
 const char * const byte_conv_dev_fname = "byte_converter";
 const char * const byte_conv_proc_fname = "byte_conv_mask";
-u16 byte_conv_mask;
+u32 byte_conv_mask;
 spinlock_t byte_conv_mask_lock;
 
 /*******************************************/
@@ -36,22 +36,26 @@ static struct byte_conv_user_data user_data;
 // write callback (echo "..." > /dev/byte_converter)
 static ssize_t dev_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
 {
-	size_t readed;
+	ssize_t readed;
 
 	if (count == 0) return 0;
-	if (count > INPUT_USER_BUF_SIZE) count = INPUT_USER_BUF_SIZE;
-	readed = copy_from_user(user_data.user_data_buf, buf, count);
-	user_data.user_data_size = readed;
+	if (count > INPUT_USER_BUF_SIZE) return -EINVAL;
+	readed = simple_write_to_buffer(user_data.user_data_buf,
+			INPUT_USER_BUF_SIZE, ppos, buf, count);
+	if (readed < 0) {
+		BC_PR_DEBUG("Readed is: %li\n", readed);
+		return readed;
+	}
+	user_data.user_data_size = *ppos;
 	// validating input with input bit mask, i.e.: if INPUT in HEX, then
 	// check if input (not 0-9 && a-f, A-F)
-	// call copy_from_user(kernel_buffer, buf, count);
 	return readed; // total converted and writed bytes
 }
 
 // read callback (cat /dev/byte_converter)
 static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 {
-	u16 mask;
+	u32 mask;
 	unsigned long flags;
 	size_t total_size = 0, input_size = user_data.user_data_size;
 	char *kern_buf = NULL, *p = NULL, *input_p = user_data.user_data_buf;
@@ -63,7 +67,7 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
 	spin_unlock_irqrestore(&byte_conv_mask_lock, flags);
 
 	if (input_size == 0) {
-		pr_warn("user write to /dev/byte_conv NULL bytes\n");
+		pr_warn("user write to /dev/byte_converter NULL bytes\n");
 		return 0;
 	}
 
@@ -83,6 +87,7 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
 		return 0;
 	}
 	*/
+	curr_task = tasks;
 
 	if (IS_SET_OUTPUT_RAW(mask)) {
 		total_size += OUT_BUF_SIZE_RAW(input_size);
@@ -115,8 +120,12 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
 	for(p = kern_buf, curr_task = tasks; *curr_task;)
 		p += (*curr_task++)(p, input_p, input_size);
 
-	copy_to_user(buf, kern_buf, total_size);
+	total_size = simple_read_from_buffer(buf, count, ppos,
+			kern_buf, p - kern_buf);
 	kfree(kern_buf);
+	if (total_size < 0) {
+		return -EFAULT;
+	}
 	return total_size;
 }
 
@@ -158,7 +167,9 @@ static int __init converter_init(void)
 
 	pr_info("Char Device Converter module is loaded\n");
 
-	byte_conv_mask = 0x40f; // Set mask to "Input: RAW, Outpu ASCII"
+	spin_lock_init(&byte_conv_mask_lock);
+	// Set mask to "Input: RAW, Outpu RAW, and mode incremental"
+	byte_conv_mask = 0x80004020;
 
 	ret = alloc_chrdev_region(&dev_num, 0, 1, byte_conv_dev_fname);
 	if (ret < 0) {
