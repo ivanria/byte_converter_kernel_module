@@ -20,3 +20,11 @@ byte_converter.o
 main.o
 .proc.o.cmd
 ..module-common.o.cmd
+.cache
+compile_commands.json
+.clangd
+.env_setup
+__gutentags_enable_file
+GPATH
+GRTAGS
+GTAGS

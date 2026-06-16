@@ -4,7 +4,7 @@
 
 // Check bit on n position. Double negation transform any not null value to 1
 // null still as is
-#define CHECK_BIT(mask, n)		((!(!((mask) & BIT(n)))))
+#define CHECK_BIT(mask, n)		(((mask) >> (n)) & 1)
 
 // Mask manage bit
 #define IS_SET_MODE_INCREMENTAL(m)	CHECK_BIT(m, 31)
@@ -16,7 +16,7 @@
 #define IS_SET_INPUT_DEC(m)		CHECK_BIT(m, 11)
 #define IS_SET_INPUT_HEX(m)		CHECK_BIT(m, 10)
 
-// Output groupped by word size 9-10 bits (position 8-9)
+// Output groupped by word size (position 8-9, if count from zero)
 // ( May be only makes sense if the Little Endian mode enabled)
 #define IS_SET_GROUP_1(m)		((((m) >> 8) & 0x3) == 0)
 #define IS_SET_GROUP_2(m)		((((m) >> 8) & 0x3) == 1)

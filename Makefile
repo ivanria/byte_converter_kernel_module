@@ -13,7 +13,9 @@ install:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules_install
 
 clean:
+	@test -f compile_commands.json && mv compile_commands.json .compile_commands.json.bak || true
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) clean
+	@test -f .compile_commands.json.bak && mv .compile_commands.json.bak compile_commands.json || true
 
 help:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) help
