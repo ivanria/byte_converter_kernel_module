@@ -2,6 +2,8 @@
 #ifndef MAIN_H__
 #define MAIN_H__
 
+#include <linux/types.h>
+
 // Typedef for print_conv functions
 typedef size_t (*conv_func_t)(char *outbuf, char *inbuf, size_t inbuf_size);
 

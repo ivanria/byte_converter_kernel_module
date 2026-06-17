@@ -1,6 +1,8 @@
 #ifndef CONV_HELPERS_H__
 #define CONV_HELPERS_H__
 
+#include <linux/types.h>
+
 size_t print_conv_bin(char *outbuf, char *inbuf, size_t inbuf_size);
 
 size_t print_conv_octal(char *outbuf, char *inbuf, size_t inbuf_size);
