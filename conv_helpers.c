@@ -5,6 +5,30 @@
 #include "main.h"
 #include "conv_helpers.h"
 
+static char header_raw[] = "=================================RAW   OUTPUT===================================";
+
+static char header_asc[] = "=================================ASCII OUTPUT===================================";
+
+static char header_bin[] = "=================================BIN   OUTPUT===================================";
+
+static char header_oct[] = "=================================OCT   OUTPUT===================================";
+
+static char header_dec[] = "=================================DEC   OUTPUT===================================";
+
+static char header_hex[] = "=================================HEX   OUTPUT===================================";
+
+static char header_little[] = "==============================LITTLE ENDIAN OUT=================================";
+
+static char header_big[] = "==============================LITTLE ENDIAN OUT=================================";
+
+static char header_gr_1[] = "==============================GROUPED BY 1B OUT=================================";
+
+static char header_gr_2[] = "==============================GROUPED BY 2B OUT=================================";
+
+static char header_gr_4[] = "==============================GROUPED BY 4B OUT=================================";
+
+static char header_gr_8[] = "==============================GROUPED BY 8B OUT=================================";
+
 size_t print_conv_bin(char *outbuf, char *inbuf, size_t inbuf_size)
 {
 	uint8_t byte;

@@ -24,7 +24,7 @@
 #define IS_SET_GROUP_8(m)		((((m) >> 8) & 0x3) == 3)
 
 // Output Endianness control bit 0 - Big, 1 - Little
-#define IS_SET_OUTPUT_LETTLE(m)		CHECK_BIT(m, 7)
+#define IS_SET_OUTPUT_LITTLE(m)		CHECK_BIT(m, 7)
 #define IS_SET_OUTPUT_BIG(m)		(!(CHECK_BIT(m, 7)))
 
 // Output add banner and footer

@@ -6,24 +6,20 @@ ccflags-y		:= -Wall -Wextra -Wmissing-prototypes \
 			-Wstrict-prototypes -DBYTE_CONV_DEBUG
 #ldflags-y		:= -T foo_section.lds
 
-.PHONY: all modules clang
-
-all: clang
-	
-clang: modules
-	@echo "generate compile_commands.json"
-	@python3 ./gen_compile_commands.py
-
-modules:
+all:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules
 
 install:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules_install
 
 clean:
-	@test -f compile_commands.json && mv compile_commands.json .compile_commands.json.bak || true
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) clean
-	@test -f .compile_commands.json.bak && mv .compile_commands.json.bak compile_commands.json || true
+
+
+#clean:
+	#@test -f compile_commands.json && mv compile_commands.json .compile_commands.json.bak || true
+	#$(MAKE) -C $(KERNEL_SRC) M=$(PWD) clean
+	#@test -f .compile_commands.json.bak && mv .compile_commands.json.bak compile_commands.json || true
 
 help:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) help

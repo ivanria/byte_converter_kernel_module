@@ -8,6 +8,9 @@
 typedef size_t (*conv_func_t)(char *outbuf, char *inbuf, size_t inbuf_size);
 
 // Definitions for buffers size
+#define MAX_NUM_FUNCS		7 * 3 
+#define HEADER_SIZE		80
+#define HEADER_SIZE_BUF		(HEADER_SIZE + 1)
 #define INPUT_USER_BUF_SIZE	4096
 #define OFFSET_STR_LEN		7
 #define OFFSET_STR_BUF		(OFFSET_STR_LEN + 1)

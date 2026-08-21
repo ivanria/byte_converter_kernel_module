@@ -60,7 +60,7 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
 	size_t total_size = 0, input_size = user_data.user_data_size;
 	char *kern_buf = NULL, *p = NULL, *input_p = user_data.user_data_buf;
 	//char inval_mask_bit_buf[OUT_BUF_SIZE_BIN(sizeof(byte_conv_mask))];
-	conv_func_t tasks[7], *curr_task;
+	conv_func_t tasks[MAX_NUM_FUNCS], *curr_task;
 
 	spin_lock_irqsave(&byte_conv_mask_lock, flags);
 	mask = byte_conv_mask;
@@ -90,6 +90,9 @@ static ssize_t dev_read(struct file *file, char __user *buf, size_t count, loff_
 	curr_task = tasks;
 
 	if (IS_SET_OUTPUT_RAW(mask)) {
+		if (IS_SET_OUTPUT_ADDINFO(mask)) {
+			total_size += HEADER_SIZE * 3;
+
 		total_size += OUT_BUF_SIZE_RAW(input_size);
 		*curr_task++ = print_conv_raw;
 	}

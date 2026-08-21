@@ -28,3 +28,4 @@ __gutentags_enable_file
 GPATH
 GRTAGS
 GTAGS
+compile_commands.json.back
